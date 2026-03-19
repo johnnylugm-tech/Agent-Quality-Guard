@@ -130,6 +130,14 @@ _SECURITY_PATTERNS = {
         re.compile(r'secret\s*=\s*["\'][^"\']+["\']', re.IGNORECASE),
         re.compile(r'token\s*=\s*["\'][^"\']+["\']', re.IGNORECASE),
     ],
+    # v1 整合: AWS Key
+    "aws_credentials": [
+        re.compile(r'(?i)(AKIA|ABIA|ACCA|ASIA)[A-Z0-9]{16}'),
+    ],
+    # v1 整合: GitHub Token
+    "github_token": [
+        re.compile(r'gh[pousr]_[A-Za-z0-9_]{36,}'),
+    ],
     "sql_injection": [
         re.compile(r'execute\s*\(\s*["\'].*\%s'),
         re.compile(r'cursor\.execute\s*\([^,]+\+'),
@@ -140,6 +148,16 @@ _SECURITY_PATTERNS = {
     ],
     "insecure_random": [
         re.compile(r'random\.random\s*\('),
+    ],
+    # v1 整合: Command Injection
+    "command_injection": [
+        re.compile(r'os\.system\s*\([^)]*\+'),
+        re.compile(r'os\.popen\s*\([^)]*\+'),
+        re.compile(r'subprocess\.call\s*\([^)]*shell\s*=\s*True'),
+    ],
+    # v1 整合: Hardcoded IP
+    "hardcoded_ip": [
+        re.compile(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'),
     ],
 }
 
@@ -456,6 +474,42 @@ class CodeAnalyzer:
                         "Potential SQL injection vulnerability",
                         idx
                     )
+            
+            # v1 整合: AWS Credentials
+            for pattern in _SECURITY_PATTERNS["aws_credentials"]:
+                if pattern.search(line):
+                    self._add_issue(
+                        "security", "high",
+                        "AWS Access Key detected",
+                        idx
+                    )
+            
+            # v1 整合: GitHub Token
+            for pattern in _SECURITY_PATTERNS["github_token"]:
+                if pattern.search(line):
+                    self._add_issue(
+                        "security", "high",
+                        "GitHub Token detected",
+                        idx
+                    )
+            
+            # v1 整合: Command Injection
+            for pattern in _SECURITY_PATTERNS["command_injection"]:
+                if pattern.search(line):
+                    self._add_issue(
+                        "security", "high",
+                        "Potential command injection vulnerability",
+                        idx
+                    )
+            
+            # v1 整合: Hardcoded IP
+            for pattern in _SECURITY_PATTERNS["hardcoded_ip"]:
+                if pattern.search(line):
+                    self._add_issue(
+                        "security", "medium",
+                        "Hardcoded IP address detected",
+                        idx
+                    )
     
     def _analyze_maintainability(self, tree: ast.AST) -> None:
         """
@@ -490,6 +544,36 @@ class CodeAnalyzer:
                         f"Missing docstring for {node.__class__.__name__} '{node.name}'",
                         node.lineno
                     )
+        
+        # v1 整合: Quality patterns (line-based)
+        for idx, line in enumerate(self._lines, 1):
+            stripped = line.strip()
+            if stripped.startswith('#'):
+                continue
+            
+            # v1 整合: Empty except
+            if re.search(r'except\s*.*:\s*\n\s*pass\s*\n', stripped):
+                self._add_issue(
+                    "maintainability", "medium",
+                    "Empty except block may hide errors",
+                    idx
+                )
+            
+            # v1 整合: Broad exception
+            if re.search(r'except\s*:', stripped):
+                self._add_issue(
+                    "maintainability", "low",
+                    "Catching broad Exception is not recommended",
+                    idx
+                )
+            
+            # v1 整合: Print debug
+            if re.search(r'\bprint\s*\(', stripped) and not stripped.startswith('#'):
+                self._add_issue(
+                    "maintainability", "low",
+                    "Using print for debugging - consider logging module",
+                    idx
+                )
         
         # Check complexity
         if self._complexity and self._complexity > 5:

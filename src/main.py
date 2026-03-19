@@ -15,7 +15,7 @@ from analyzer import analyze_code, InputError, ToolError, ExecutionError, System
 from scorer import compute_score, score_from_code
 
 
-VERSION = "3.1.0"
+VERSION = "1.0.0"
 
 
 def read_code_from_file(file_path: str) -> str:
