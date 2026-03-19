@@ -1,0 +1,10 @@
+# Agent Quality Guard - Dependencies
+
+# Core (Python 3.8+ only - no external dependencies)
+# All dependencies are from Python standard library
+
+# Optional: For enhanced JSON handling
+# numpy>=1.20.0
+
+# Optional: For HTML report formatting
+# jinja2>=3.0.0
