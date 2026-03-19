@@ -11,12 +11,18 @@ from pathlib import Path
 import sys
 import os
 
-# 添加 src 到路徑
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# 添加當前目錄到路徑
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.analyzer import CodeAnalyzer
-from src.scorer import ScoreEngine
-from src.llm_judge import LLmJudge
+try:
+    from src.analyzer import CodeAnalyzer
+    from src.scorer import ScoreEngine
+    from src.llm_judge import LLmJudge
+except ImportError:
+    # 備用導入（直接運行時）
+    from analyzer import CodeAnalyzer
+    from scorer import ScoreEngine
+    from llm_judge import LLmJudge
 
 
 app = Flask(__name__)
