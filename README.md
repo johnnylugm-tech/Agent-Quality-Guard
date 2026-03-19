@@ -1,4 +1,4 @@
-# Agent Quality Guard - 開發計劃
+# Agent Quality Guard
 
 > AI 程式碼品質把關系統
 
@@ -6,7 +6,7 @@
 
 ## 📦 版本資訊
 
-- **版本**: 1.0.0
+- **版本**: 1.0.1
 - **發布日期**: 2026-03-19
 - **作者**: OpenClaw AI Agent
 
@@ -23,12 +23,31 @@
 | Git Hook | pre-commit 整合 |
 | 報告生成 | Markdown/HTML 格式 |
 | 趨勢追蹤 | 歷史分數趨勢分析 |
+| **API Server** | REST API 服務 |
+| **Docker** | 容器化支援 |
+| **CI/CD** | GitHub Actions / GitLab / Jenkins |
+| **OWASP Top 10** | 2023 最新規則 |
 
 ---
 
-## 🛡️ 偵測規則
+## 🛡️ 偵測規則 (50+)
 
-### 安全問題
+### OWASP Top 10 2023
+
+| 類別 | 說明 |
+|------|------|
+| A01 | Broken Access Control |
+| A02 | Cryptographic Failures |
+| A03 | Injection |
+| A04 | Insecure Design |
+| A05 | Security Misconfiguration |
+| A06 | Vulnerable Components |
+| A07 | Auth Failures |
+| A08 | Software Integrity |
+| A09 | Logging Failures |
+| A10 | SSRF |
+
+### 經典規則
 
 | 規則 | 說明 |
 |------|------|
@@ -41,13 +60,37 @@
 | Eval Usage | 不安全的 eval() |
 | Hardcoded IP | IP 位址硬編碼 |
 
-### 品質問題
+---
 
-| 規則 | 說明 |
-|------|------|
-| Empty except | 空的 except 區塊 |
-| Broad exception | 過於寬泛的例外捕獲 |
-| Long function | 函數過長 |
+## 🚀 安裝
+
+```bash
+# 方式 1: Clone
+git clone https://github.com/johnnylugm-tech/Agent-Quality-Guard.git
+cd Agent-Quality-Guard
+pip install -r requirements.txt
+
+# 方式 2: Docker
+docker build -t agent-quality-guard .
+```
+
+---
+
+## 💻 使用
+
+```bash
+# 基本掃描
+python src/main.py --file your_code.py
+
+# LLM 審查
+python src/main.py --file your_code.py --llm
+
+# GitHub Actions
+# 見 .github/workflows/scan.yml
+
+# API Server
+python -c "from src.api_server import run_server; run_server()"
+```
 | Missing docstring | 缺少文檔字串 |
 | Nested loops | 巢狀迴圈 |
 

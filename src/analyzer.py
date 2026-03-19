@@ -124,6 +124,64 @@ class SystemError(AnalyzerError):
 
 # Pre-compile regex patterns once at module level
 _SECURITY_PATTERNS = {
+    # OWASP Top 10 2023
+    "a01_broken_access_control": [
+        # 權限繞過
+        re.compile(r'if\s+.*\s+==\s+["\']admin["\']', re.IGNORECASE),
+        re.compile(r'@app\.route\([^)]+methods\s*=\s*\[[^]]*["\']GET["\'][^]]*\]', re.IGNORECASE),
+    ],
+    "a02_cryptographic_failures": [
+        # 弱加密
+        re.compile(r'hashlib\.md5\s*\(', re.IGNORECASE),
+        re.compile(r'hashlib\.sha1\s*\(', re.IGNORECASE),
+        re.compile(r'MD5\s*\(', re.IGNORECASE),
+        re.compile(r'SHA1\s*\(', re.IGNORECASE),
+        re.compile(r'cipher\s*=\s*["\']DES["\']', re.IGNORECASE),
+    ],
+    "a03_injection": [
+        # 注入攻擊 (SQL, Command, Code)
+        re.compile(r'execute\s*\(\s*["\'].*\%s'),
+        re.compile(r'cursor\.execute\s*\([^,]+\+'),
+        re.compile(r'os\.system\s*\([^)]*\+'),
+        re.compile(r'os\.popen\s*\([^)]*\+'),
+        re.compile(r'subprocess.*shell\s*=\s*True'),
+        re.compile(r'\beval\s*\('),
+        re.compile(r'\bexec\s*\('),
+    ],
+    "a04_insecure_design": [
+        # 不安全的設計
+        re.compile(r'random\.random\s*\('),
+        re.compile(r'os\.urandom\s*\('),
+    ],
+    "a05_security_misconfiguration": [
+        # 安全配置錯誤
+        re.compile(r'debug\s*=\s*True', re.IGNORECASE),
+        re.compile(r'allow_origins\s*=\s*\["\*"\]', re.IGNORECASE),
+        re.compile(r'CORS.*allow_credentials\s*=\s*True', re.IGNORECASE),
+    ],
+    "a06_vulnerable_components": [
+        # 易受攻擊的組件
+        re.compile(r'pip\s+install\s+--upgrade\s+.*==.*', re.IGNORECASE),
+    ],
+    "a07_auth_failures": [
+        # 身份驗證失敗
+        re.compile(r'if\s+.*password\s*==', re.IGNORECASE),
+        re.compile(r'if\s+.*token\s*==', re.IGNORECASE),
+    ],
+    "a08_software_integrity": [
+        # 軟體完整性失敗
+        re.compile(r'os\.chmod\s*\(\s*0o777', re.IGNORECASE),
+    ],
+    "a09_logging_failures": [
+        # 日誌記錄失敗
+        re.compile(r'logging\.\w+\s*\(\s*f?["\']', re.IGNORECASE),
+    ],
+    "a10_ssrf": [
+        # SSRF
+        re.compile(r'requests\.\w+\s*\(\s*.*url\s*=', re.IGNORECASE),
+        re.compile(r'urllib\.\w+\s*\(\s*.*url\s*=', re.IGNORECASE),
+    ],
+    # 經典規則
     "hardcoded_secret": [
         re.compile(r'password\s*=\s*["\'][^"\']+["\']', re.IGNORECASE),
         re.compile(r'api[_-]?key\s*=\s*["\'][^"\']+["\']', re.IGNORECASE),

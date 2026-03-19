@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  agent-quality-guard:
+    build: .
+    volumes:
+      - ./:/app
+      - ./reports:/app/reports
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    working_dir: /app
+    command: python src/main.py --file your_code.py
+    restart: unless-stopped
+
+  # API Server (可選)
+  api-server:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+      - ./data:/app/data
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    working_dir: /app
+    command: python -c "from src.api_server import run_server; run_server()"
+    restart: unless-stopped
+
+  # GitHub Actions Runner (可選)
+  github-actions:
+    build: .
+    volumes:
+      - ${{ github.workspace }}:/app
+    working_dir: /app
+    command: python src/main.py --file . --report --json
